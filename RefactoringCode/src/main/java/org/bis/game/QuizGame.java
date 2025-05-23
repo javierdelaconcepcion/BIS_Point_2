@@ -29,7 +29,7 @@ public class QuizGame {
     static LinkedList TechnologyQuestions = new LinkedList();
     
     
-    
+    // Control the active player. Setting to 0 by default
     int activePlayer = 0;
     boolean isExitingPenaltyBox;   
     
@@ -60,6 +60,8 @@ public class QuizGame {
     
     
     // region Main 
+    
+    
     public static void main(String[] args) {
         
         boolean gameRunning; // Using this to control the iterator
@@ -76,32 +78,74 @@ public class QuizGame {
         
         System.out.println("Total players: "+ palyers.size());
         
-        
+        // Checking if requisites are fulfilled before start the game
         if(checkRequisites()){
             
+            do {
+                // Simulate a rollDice
+                // Setting nextInt(5) + 1 to avoid 0.
+                gameInstance.rollDice(randomizer.nextInt(5) + 1); 
+
+                if (randomizer.nextInt(8) == 6) {
+                    gameRunning = gameInstance.answeredIncorrectly();
+                } else {
+                    gameRunning = gameInstance.answeredCorrectly();
+                }
+
+            } while (gameRunning);
+
         }
         
-        /*
-
-        do {
-            
-            gameInstance.rollDice(randomizer.nextInt(5) + 1);
-            
-            if (randomizer.nextInt(8) == 6) {
-                gameRunning = gameInstance.answeredIncorrectly();
-            } else {
-                gameRunning = gameInstance.answeredCorrectly();
-            }
-            
-        } while (gameRunning);
         
-        */
     }
 
     // endregion
     
     
     // region Methods
+    
+    /*
+      Simulate a DiceRoll
+      Receive the value as a parameter
+    */
+    private void rollDice(int diceRoll) {
+        
+        System.out.println(palyers.get(activePlayer).Name + " is currently playing");
+        System.out.println(palyers.get(activePlayer).Name + " rolled a " + diceRoll);
+        
+        if (palyers.get(activePlayer).HasPenalty) {
+            if (diceRoll % 2 != 0) {
+                isExitingPenaltyBox = true;
+                
+                System.out.println(palyers.get(activePlayer) + " is leaving the penalty box");
+                positions[activePlayer] = positions[activePlayer] + diceRoll;
+                if (positions[activePlayer] > 11) positions[activePlayer] = positions[activePlayer] - 12;
+                
+                System.out.println(palyers.get(activePlayer) 
+                        + "'s new position is " 
+                        + positions[activePlayer]);
+                System.out.println("The current category is " + determineCategory());
+                askQuestion();
+            } else {
+                System.out.println(palyers.get(activePlayer) + " is staying in the penalty box");
+                isExitingPenaltyBox = false;
+            }
+        } else {
+            positions[activePlayer] = positions[activePlayer] + diceRoll;
+            if (positions[activePlayer] > 11) positions[activePlayer] = positions[activePlayer] - 12;
+            
+            System.out.println(palyers.get(activePlayer) + "'s new position is " 
+                    + positions[activePlayer]);
+            System.out.println("The current category is " + determineCategory());
+            askQuestion();
+        }
+    }
+    
+    
+    
+    
+    
+    
     
     /*
         Populate the list of questions
@@ -138,43 +182,17 @@ public class QuizGame {
     }
     
     
+    
+    
+    
+    
     //endregion
     
     
     
   
 
-    public void rollDice(int diceRoll) {
-        System.out.println(palyers.get(activePlayer) + " is currently playing");
-        System.out.println(palyers.get(activePlayer) + " rolled a " + diceRoll);
-        
-        if (penaltyBoxStatus[activePlayer]) {
-            if (diceRoll % 2 != 0) {
-                isExitingPenaltyBox = true;
-                
-                System.out.println(palyers.get(activePlayer) + " is leaving the penalty box");
-                positions[activePlayer] = positions[activePlayer] + diceRoll;
-                if (positions[activePlayer] > 11) positions[activePlayer] = positions[activePlayer] - 12;
-                
-                System.out.println(palyers.get(activePlayer) 
-                        + "'s new position is " 
-                        + positions[activePlayer]);
-                System.out.println("The current category is " + determineCategory());
-                askQuestion();
-            } else {
-                System.out.println(palyers.get(activePlayer) + " is staying in the penalty box");
-                isExitingPenaltyBox = false;
-            }
-        } else {
-            positions[activePlayer] = positions[activePlayer] + diceRoll;
-            if (positions[activePlayer] > 11) positions[activePlayer] = positions[activePlayer] - 12;
-            
-            System.out.println(palyers.get(activePlayer) + "'s new position is " 
-                    + positions[activePlayer]);
-            System.out.println("The current category is " + determineCategory());
-            askQuestion();
-        }
-    }
+    
 
     private void askQuestion() {
         if (determineCategory() == "Literature")
