@@ -19,6 +19,7 @@ public class QuizGame {
     int[] positions = new int[6]; //Determine the category of the question based on the value
     int[] scores = new int[6];    //Save the score for each player
     boolean[] penaltyBoxStatus = new boolean[6]; // Save if a player has a penalty
+    
     final int questions = 50;  // Const for define the number of questions
     
     // List of categories for the game
@@ -27,22 +28,32 @@ public class QuizGame {
     LinkedList HistoryQuestions = new LinkedList();
     LinkedList TechnologyQuestions = new LinkedList();
     
-    // Save the list of players
-    ArrayList palyers = new ArrayList();
+    
     
     int activePlayer = 0;
     boolean isExitingPenaltyBox;   
     
+    // Define the list of players
+    static String[] listOfPlayers = {"Alex","John","Mary"};
+    // Save the players
+    static ArrayList<Player> palyers = new ArrayList<Player>();
     //endregion
     
-    public QuizGame(){
+    
+    // Constructor
+    public QuizGame( String[] _listOfPlayers){
         
-        for (int i = 0; i < 50; i++) {
-            LiteratureQuestions.addLast("Literature Question " + i);
-            MusicQuestions.addLast("Music Question " + i);
-            HistoryQuestions.addLast("History Question " + i);
-            TechnologyQuestions.addLast("Technology Question " + i);
-        }
+        // Creating the list of questions
+        creatingQuestions();
+        
+        // Creating the list of players based on listOfPlayers list
+        // This is done because positions[] and scores[] just have 6 slots available so if players are more than 6 this needs to be updated.
+        // In this way Players, scores & positions are flexible based on the String[] listOfPlayers that we have defined.
+        // This can be also pased to a parameter to the main method.
+        for (String _player : _listOfPlayers) {
+            palyers.add(new Player(_player,false,0,0, palyers.size() + 1));
+            
+          }
     }
     
     
@@ -50,12 +61,20 @@ public class QuizGame {
         
         boolean gameRunning; // Using this to control the interator
         Random randomizer = new Random();
-        QuizGame gameInstance = new QuizGame();
         
-        gameInstance.addPlayer("Alex");
-        gameInstance.addPlayer("John");
-        gameInstance.addPlayer("Mary");
+        // Creating the QuizGame object with the list of players
+        QuizGame gameInstance = new QuizGame(listOfPlayers);
         
+        // Log to see the number of partipants
+        
+        for (Player _player : palyers) {
+            System.out.println("Participant: "+ _player.Name + " has joined the game at the position: " + _player.Position);
+        }
+        
+        System.out.println("Total players: "+ palyers.size());
+        
+        
+        /*
 
         do {
             
@@ -68,14 +87,38 @@ public class QuizGame {
             }
             
         } while (gameRunning);
+        
+        */
     }
 
+    
+    private void creatingQuestions() {
+        
+        // Adding questions on the ArrayLists
+        for (int i = 0; i < questions; i++) {
+            LiteratureQuestions.addLast("Literature Question " + i);
+            MusicQuestions.addLast("Music Question " + i);
+            HistoryQuestions.addLast("History Question " + i);
+            TechnologyQuestions.addLast("Technology Question " + i);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public boolean isReadyToStart() {
         return (totalPlayers() >= 2);
     }
 
     public boolean addPlayer(String player) {
-        palyers.add(player);
+        //palyers.add(player);
         positions[totalPlayers()] = 0;
         scores[totalPlayers()] = 0;
         penaltyBoxStatus[totalPlayers()] = false;
