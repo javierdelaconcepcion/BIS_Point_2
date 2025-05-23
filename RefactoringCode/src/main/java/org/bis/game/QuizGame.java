@@ -23,10 +23,10 @@ public class QuizGame {
     final int questions = 50;  // Const for define the number of questions
     
     // List of categories for the game
-    LinkedList LiteratureQuestions = new LinkedList();
-    LinkedList MusicQuestions = new LinkedList();
-    LinkedList HistoryQuestions = new LinkedList();
-    LinkedList TechnologyQuestions = new LinkedList();
+    static LinkedList LiteratureQuestions = new LinkedList();
+    static LinkedList MusicQuestions = new LinkedList();
+    static LinkedList HistoryQuestions = new LinkedList();
+    static LinkedList TechnologyQuestions = new LinkedList();
     
     
     
@@ -40,7 +40,7 @@ public class QuizGame {
     //endregion
     
     
-    // Constructor
+    // region Constructor
     public QuizGame( String[] _listOfPlayers){
         
         // Creating the list of questions
@@ -56,10 +56,13 @@ public class QuizGame {
           }
     }
     
+    // endregion
     
+    
+    // region Main 
     public static void main(String[] args) {
         
-        boolean gameRunning; // Using this to control the interator
+        boolean gameRunning; // Using this to control the iterator
         Random randomizer = new Random();
         
         // Creating the QuizGame object with the list of players
@@ -73,6 +76,10 @@ public class QuizGame {
         
         System.out.println("Total players: "+ palyers.size());
         
+        
+        if(checkRequisites()){
+            
+        }
         
         /*
 
@@ -91,7 +98,14 @@ public class QuizGame {
         */
     }
 
+    // endregion
     
+    
+    // region Methods
+    
+    /*
+        Populate the list of questions
+    */
     private void creatingQuestions() {
         
         // Adding questions on the ArrayLists
@@ -103,34 +117,32 @@ public class QuizGame {
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public boolean isReadyToStart() {
-        return (totalPlayers() >= 2);
-    }
-
-    public boolean addPlayer(String player) {
-        //palyers.add(player);
-        positions[totalPlayers()] = 0;
-        scores[totalPlayers()] = 0;
-        penaltyBoxStatus[totalPlayers()] = false;
+    /*
+      List of required checks to keep running the game.
+    */
+    private static boolean checkRequisites(){
         
-        System.out.println(player + " has joined the game");
-        System.out.println("Participant number " + palyers.size());
+        // Checking number of players
+        if(palyers.size() < 2){
+            System.out.println("It is required more than 1 player to play. Nº of players: " + palyers.size());
+            return false;
+        }
+
+        //Checking is there are questions available on the list
+        if( LiteratureQuestions.isEmpty() || MusicQuestions.isEmpty() || HistoryQuestions.isEmpty() || TechnologyQuestions.isEmpty()  ){
+            System.out.println("There are no questions available to keep playing the game");
+            return false;
+        }
+        
         return true;
     }
     
-    public int totalPlayers() {
-        return palyers.size();
-    }
+    
+    //endregion
+    
+    
+    
+  
 
     public void rollDice(int diceRoll) {
         System.out.println(palyers.get(activePlayer) + " is currently playing");
