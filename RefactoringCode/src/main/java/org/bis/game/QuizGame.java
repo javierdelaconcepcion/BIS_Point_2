@@ -4,44 +4,61 @@
 
 package org.bis.game;
 
+//region IMPORTS
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
+//endregion
+
+
 
 public class QuizGame {
-    ArrayList palyers = new ArrayList();
-    int[] positions = new int[6];
-    int[] scores = new int[6];
-    boolean[] penaltyBoxStatus = new boolean[6];
     
+    //region VARIABLES
+    
+    int[] positions = new int[6]; //Determine the category of the question based on the value
+    int[] scores = new int[6];    //Save the score for each player
+    boolean[] penaltyBoxStatus = new boolean[6]; // Save if a player has a penalty
+    final int questions = 50;  // Const for define the number of questions
+    
+    // List of categories for the game
     LinkedList LiteratureQuestions = new LinkedList();
     LinkedList MusicQuestions = new LinkedList();
     LinkedList HistoryQuestions = new LinkedList();
     LinkedList TechnologyQuestions = new LinkedList();
     
+    // Save the list of players
+    ArrayList palyers = new ArrayList();
+    
     int activePlayer = 0;
-    boolean isExitingPenaltyBox;
+    boolean isExitingPenaltyBox;   
+    
+    //endregion
     
     public QuizGame(){
+        
         for (int i = 0; i < 50; i++) {
             LiteratureQuestions.addLast("Literature Question " + i);
             MusicQuestions.addLast("Music Question " + i);
             HistoryQuestions.addLast("History Question " + i);
-            TechnologyQuestions.addLast(generateTechnologyQuestion(i));
+            TechnologyQuestions.addLast("Technology Question " + i);
         }
     }
     
-    private static boolean gameRunning;
+    
     public static void main(String[] args) {
+        
+        boolean gameRunning; // Using this to control the interator
+        Random randomizer = new Random();
         QuizGame gameInstance = new QuizGame();
         
         gameInstance.addPlayer("Alex");
         gameInstance.addPlayer("John");
         gameInstance.addPlayer("Mary");
         
-        Random randomizer = new Random();
-    
+
         do {
+            
             gameInstance.rollDice(randomizer.nextInt(5) + 1);
             
             if (randomizer.nextInt(8) == 6) {
@@ -53,10 +70,6 @@ public class QuizGame {
         } while (gameRunning);
     }
 
-    public String generateTechnologyQuestion(int index){
-        return "Technology Question " + index;
-    }
-    
     public boolean isReadyToStart() {
         return (totalPlayers() >= 2);
     }
