@@ -57,7 +57,6 @@ public class QuizGame {
     
     // region Main 
     
-    
     public static void main(String[] args) {
         
         boolean gameRunning; // Using this to control the iterator
@@ -96,10 +95,6 @@ public class QuizGame {
             }
 
         } while (gameRunning);
-
-        
-        
-        
     }
 
     // endregion
