@@ -15,11 +15,7 @@ import java.util.Random;
 public class QuizGame {
     
     //region VARIABLES
-    
-    int[] positions = new int[6]; //Determine the category of the question based on the value
-    int[] scores = new int[6];    //Save the score for each player
-    boolean[] penaltyBoxStatus = new boolean[6]; // Save if a player has a penalty
-    
+        
     final int questions = 50;  // Const for define the number of questions
     
     // List of categories for the game
@@ -30,7 +26,7 @@ public class QuizGame {
     
     
     // Control the active player. Setting to 0 by default
-    int activePlayer = 0;
+    static int activePlayer = 0;
     boolean isExitingPenaltyBox;   
     
     // Define the list of players
@@ -80,7 +76,7 @@ public class QuizGame {
         
         do {
              
-            // Checking if requisites are fulfilled before start the game
+            // Checking if requisites before any interaction are fulfilled before start the game
             if(checkRequisites()){
                 // Simulate a rollDice
                 // Setting nextInt(5) + 1 to avoid 0.
@@ -91,6 +87,9 @@ public class QuizGame {
                 } else {
                     gameRunning = gameInstance.answeredCorrectly();
                 }
+                
+                // Increasing the active player on each iteration
+                activePlayer++;
             }
             else{
                 gameRunning = false;
@@ -123,24 +122,20 @@ public class QuizGame {
             if (diceRoll % 2 != 0) {
                 
                 palyers.get(activePlayer).HasPenalty = false;
-                //isExitingPenaltyBox = true;
+                isExitingPenaltyBox = true;
                 
                 LogMessage(tmpPlayer.Name + " is leaving the penalty box");
                
                 // Increment the value for this player              
                 addingDiceValue(activePlayer,diceRoll);
-                
-                askQuestion();
-
             } else {
                 LogMessage(tmpPlayer.Name + " is staying in the penalty box");
-                //isExitingPenaltyBox = false;
+                isExitingPenaltyBox = false;
             }
         } else {
             // Increment the value for this player              
             addingDiceValue(activePlayer,diceRoll);
-            
-            askQuestion();
+
         }
     }
     
@@ -150,10 +145,14 @@ public class QuizGame {
       Method to add the dice Roll value into the active player
     */
     private void addingDiceValue(int _activePlayer, int _diceRoll) {
-        
+        String _category = "";
         palyers.get(activePlayer).Val = ( (palyers.get(activePlayer).Val + _diceRoll) > 11 ) ? ( palyers.get(activePlayer).Val + _diceRoll - 12 ) : palyers.get(activePlayer).Val + _diceRoll;
         LogMessage(palyers.get(activePlayer).Name + "'s new position is " + palyers.get(activePlayer).Val);
-        LogMessage("The current category is " + determineCategory(palyers.get(activePlayer).Val));
+        
+        _category = determineCategory(palyers.get(activePlayer).Val);
+
+        LogMessage("The current category is " + _category);       
+        askQuestion(_category);
     }
     
 
@@ -179,14 +178,19 @@ public class QuizGame {
         
         // Checking number of players
         if(palyers.size() < 2){
-            System.out.println("It is required more than 1 player to play. Nº of players: " + palyers.size());
+            LogMessage("It is required more than 1 player to play. Nº of players: " + palyers.size());
             return false;
         }
 
         //Checking is there are questions available on the list
         if( LiteratureQuestions.isEmpty() || MusicQuestions.isEmpty() || HistoryQuestions.isEmpty() || TechnologyQuestions.isEmpty()  ){
-            System.out.println("There are no questions available to keep playing the game");
+            LogMessage("There are no questions available to keep playing the game");
             return false;
+        }
+        
+        // Set the active player to 0 because the round has finished
+        if (activePlayer == palyers.size()){
+            activePlayer = 0;
         }
         
         return true;
@@ -218,75 +222,78 @@ public class QuizGame {
             
     }
     
-    //endregion
+    /*
+    Show on the Console the categoryName and remove one question from the list
     
-    
-    
-  
-
-    
-
-    private void askQuestion() {
-        if (determineCategory() == "Literature")
-            System.out.println(LiteratureQuestions.removeFirst());
-        if (determineCategory() == "Music")
-            System.out.println(MusicQuestions.removeFirst());
-        if (determineCategory() == "History")
-            System.out.println(HistoryQuestions.removeFirst());
-        if (determineCategory() == "Technology")
-            System.out.println(TechnologyQuestions.removeFirst());
-    }
-    
-    
-
-
-    public boolean answeredCorrectly() {
-        if (penaltyBoxStatus[activePlayer]){
-            if (isExitingPenaltyBox) {
-                System.out.println("Correct answer!");
-                scores[activePlayer]++;
-                System.out.println(palyers.get(activePlayer) 
-                        + " now has "
-                        + scores[activePlayer]
-                        + " points.");
-                
-                boolean gameWon = checkGameStatus();
-                activePlayer++;
-                if (activePlayer == palyers.size()) activePlayer = 0;
-                
-                return gameWon;
-            } else {
-                activePlayer++;
-                if (activePlayer == palyers.size()) activePlayer = 0;
-                return true;
-            }
-        } else {
-            System.out.println("Correct answer!");
-            scores[activePlayer]++;
-            System.out.println(palyers.get(activePlayer) 
-                    + " now has "
-                    + scores[activePlayer]
-                    + " points.");
-            
-            boolean gameWon = checkGameStatus();
-            activePlayer++;
-            if (activePlayer == palyers.size()) activePlayer = 0;
-            
-            return gameWon;
-        }
-    }
-    
-    public boolean answeredIncorrectly(){
-        System.out.println("Incorrect answer");
-        System.out.println(palyers.get(activePlayer) + " has been sent to the penalty box");
-        penaltyBoxStatus[activePlayer] = true;
+    */
+    private void askQuestion(String _category) {
         
-        activePlayer++;
-        if (activePlayer == palyers.size()) activePlayer = 0;
+        switch(_category)
+        {
+            case "Literature":
+            {
+                System.out.println(LiteratureQuestions.removeFirst());
+            }
+            
+            case "Music":
+            {
+                System.out.println(MusicQuestions.removeFirst());
+            }
+            
+            case "History":
+            {
+                System.out.println(HistoryQuestions.removeFirst());
+            }
+            default:
+            {
+                System.out.println(TechnologyQuestions.removeFirst());
+            }
+        }
+
+    }
+    
+    /*  
+        Player answered incorrectly
+        Set a penalty to the player and move to the next one.
+    */
+    private boolean answeredIncorrectly(){
+        LogMessage("Incorrect answer");
+        LogMessage(palyers.get(activePlayer).Name + " has been sent to the penalty box");
+        palyers.get(activePlayer).HasPenalty = true;
+
         return true;
     }
-
-    private boolean checkGameStatus() {
-        return !(scores[activePlayer] == 6);
+    
+    
+    /*  
+        Player answered correctly
+        Increasing the score for this player and moving to the next one
+        Return true if game needs to continue, false when score is 6 and game it is finished.
+    */
+    private boolean answeredCorrectly() {
+        
+        if (palyers.get(activePlayer).HasPenalty && !isExitingPenaltyBox ){
+            return true;
+        } else {          
+            return manageAnswer(activePlayer);          
+        }
+        
     }
+    
+    /*
+        Increasing the score for the active player and log into the Console the outputmessages
+        Return true if the player score is 6 and the game can be finished
+    */
+    private boolean manageAnswer(int _activePlayer)
+    {
+        LogMessage("Correct answer!");
+        palyers.get(_activePlayer).Score++;
+        LogMessage(palyers.get(activePlayer).Name + " now has " + palyers.get(activePlayer).Score + " points.");
+        
+        return !(palyers.get(activePlayer).Score == 6);
+    }
+    
+    //endregion
+    
+   
 }
