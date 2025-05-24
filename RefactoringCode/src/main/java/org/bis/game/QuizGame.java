@@ -17,13 +17,7 @@ public class QuizGame {
     //region VARIABLES
         
     final int questions = 50;  // Const for define the number of questions
-    
-    // List of categories for the game
-    static LinkedList LiteratureQuestions = new LinkedList();
-    static LinkedList MusicQuestions = new LinkedList();
-    static LinkedList HistoryQuestions = new LinkedList();
-    static LinkedList TechnologyQuestions = new LinkedList();
-    
+    String[] categoryList = {"Literature","Music","History","Technology"};
     
     // Control the active player. Setting to 0 by default
     static int activePlayer = 0;
@@ -33,6 +27,7 @@ public class QuizGame {
     static String[] listOfPlayers = {"Alex","John","Mary"};
     // Save the players
     static ArrayList<Player> palyers = new ArrayList<Player>();
+    static ArrayList<Question> questionsList = new ArrayList<Question>();
     //endregion
     
     
@@ -141,11 +136,13 @@ public class QuizGame {
     */
     private void addingDiceValue(int _activePlayer, int _diceRoll) {
         String _category = "";
+        int _val = 0;
         palyers.get(activePlayer).Val = ( (palyers.get(activePlayer).Val + _diceRoll) > 11 ) ? ( palyers.get(activePlayer).Val + _diceRoll - 12 ) : palyers.get(activePlayer).Val + _diceRoll;
         LogMessage(palyers.get(activePlayer).Name + "'s new position is " + palyers.get(activePlayer).Val);
         
-        _category = determineCategory(palyers.get(activePlayer).Val);
-
+        _val = palyers.get(activePlayer).Val;
+        _category = (_val % 4 > 3) ? categoryList[3] : categoryList[(_val%4)];
+        
         LogMessage("The current category is " + _category);       
         askQuestion(_category);
     }
@@ -158,13 +155,20 @@ public class QuizGame {
         
         // Adding questions on the ArrayLists
         for (int i = 0; i < questions; i++) {
-            LiteratureQuestions.addLast("Literature Question " + i);
-            MusicQuestions.addLast("Music Question " + i);
-            HistoryQuestions.addLast("History Question " + i);
-            TechnologyQuestions.addLast("Technology Question " + i);
+            for (String _category : categoryList) {
+                questionsList.addLast(new Question(_category + " Question " + i,_category));
+            }
         }
     }
     
+    /*
+      Retrieve true if there are questions on the list for the input category.    
+    */
+    private static boolean existsQuestions( String _category){
+        return (questionsList.stream().filter(question -> _category.equals(question.Category)).count() > 0) ? true: false;
+    }
+    
+
     /*
       List of required checks to keep running the game.
       Return true if requisites to keep running are match, false in case execution needs to be finished
@@ -178,7 +182,7 @@ public class QuizGame {
         }
 
         //Checking is there are questions available on the list
-        if( LiteratureQuestions.isEmpty() || MusicQuestions.isEmpty() || HistoryQuestions.isEmpty() || TechnologyQuestions.isEmpty()  ){
+        if( !(existsQuestions("Literature") && existsQuestions("Music") && existsQuestions("History") && existsQuestions("Technology"))  ){
             LogMessage("There are no questions available to keep playing the game");
             return false;
         }
@@ -198,53 +202,16 @@ public class QuizGame {
         System.out.println(_meessage);
     }
     
-    
-    /*
-      Determine the questionCategory, based on the value
-      Return the category Name
-    */  
-    private String determineCategory( int _value) {
-        
-        if(_value % 4 == 0){
-            return "Literature";
-        }else if(_value % 4 == 1){
-            return "Music";
-        }else if(_value % 4 == 2) {
-            return "History";
-        }else{
-            return "Technology";
-        }
-            
-    }
-    
+   
     /*
     Show on the Console the categoryName and remove one question from the list
     
     */
     private void askQuestion(String _category) {
-        
-        switch(_category)
-        {
-            case "Literature":
-            {
-                System.out.println(LiteratureQuestions.removeFirst());
-            }
-            
-            case "Music":
-            {
-                System.out.println(MusicQuestions.removeFirst());
-            }
-            
-            case "History":
-            {
-                System.out.println(HistoryQuestions.removeFirst());
-            }
-            default:
-            {
-                System.out.println(TechnologyQuestions.removeFirst());
-            }
-        }
 
+      Question tmpQuestion = questionsList.stream().filter(question -> _category.equals(question.Category)).findFirst().get();
+      LogMessage(tmpQuestion.Text);     
+      questionsList.remove(tmpQuestion);
     }
     
     /*  
