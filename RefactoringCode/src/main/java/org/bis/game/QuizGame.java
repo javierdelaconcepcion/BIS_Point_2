@@ -16,6 +16,8 @@ public class QuizGame {
     //region VARIABLES
         
     final int questions = 50;  // Const for define the number of questions
+    
+    // If you want to add a new category, you need to add the string here.
     String[] categoryList = {"Literature","Music","History","Technology"};
     
     // Control the active player. Setting to 0 by default
@@ -23,6 +25,7 @@ public class QuizGame {
     boolean isExitingPenaltyBox;   
     
     // Define the list of players
+    // If a new playes wants to be added just add it at the end of the string.
     static String[] listOfPlayers = {"Alex","John","Mary"};
     // Save the players
     static ArrayList<Player> palyers = new ArrayList<Player>();
@@ -56,39 +59,47 @@ public class QuizGame {
         boolean gameRunning; // Using this to control the iterator
         Random randomizer = new Random();
         
-        // Creating the QuizGame object with the list of players
-        QuizGame gameInstance = new QuizGame(listOfPlayers);
-        
-        // Log to see the number of partipants
-        
-        for (Player _player : palyers) {
-            LogMessage("Participant: "+ _player.Name + " has joined the game at the position: " + _player.Position);
+        try
+        {
+            // Creating the QuizGame object with the list of players
+            QuizGame gameInstance = new QuizGame(listOfPlayers);
+
+            // Log to see the number of partipants
+
+            for (Player _player : palyers) {
+                LogMessage("Participant: "+ _player.Name + " has joined the game at the position: " + _player.Position);
+            }
+
+            LogMessage("Total players: "+ palyers.size());
+
+            do {
+
+                // Checking if requisites before any interaction are fulfilled before start the game
+                if(checkRequisites()){
+                    // Simulate a rollDice
+                    // Setting nextInt(5) + 1 to avoid 0.
+                    gameInstance.rollDice(randomizer.nextInt(5) + 1); 
+
+                    if (randomizer.nextInt(8) == 6) {
+                        gameRunning = gameInstance.answeredIncorrectly();
+                    } else {
+                        gameRunning = gameInstance.answeredCorrectly();
+                    }
+
+                    // Increasing the active player on each iteration
+                    activePlayer++;
+                }
+                else{
+                    gameRunning = false;
+                }
+
+            } while (gameRunning);
+        }
+        catch(Exception e) {
+            LogMessage("Error during the game: "+ e.getMessage());
         }
         
-        LogMessage("Total players: "+ palyers.size());
         
-        do {
-             
-            // Checking if requisites before any interaction are fulfilled before start the game
-            if(checkRequisites()){
-                // Simulate a rollDice
-                // Setting nextInt(5) + 1 to avoid 0.
-                gameInstance.rollDice(randomizer.nextInt(5) + 1); 
-
-                if (randomizer.nextInt(8) == 6) {
-                    gameRunning = gameInstance.answeredIncorrectly();
-                } else {
-                    gameRunning = gameInstance.answeredCorrectly();
-                }
-                
-                // Increasing the active player on each iteration
-                activePlayer++;
-            }
-            else{
-                gameRunning = false;
-            }
-
-        } while (gameRunning);
     }
 
     // endregion
@@ -124,7 +135,6 @@ public class QuizGame {
         } else {
             // Increment the value for this player              
             addingDiceValue(activePlayer,diceRoll);
-
         }
     }
     
@@ -136,14 +146,24 @@ public class QuizGame {
     private void addingDiceValue(int _activePlayer, int _diceRoll) {
         String _category = "";
         int _val = 0;
-        palyers.get(activePlayer).Val = ( (palyers.get(activePlayer).Val + _diceRoll) > 11 ) ? ( palyers.get(activePlayer).Val + _diceRoll - 12 ) : palyers.get(activePlayer).Val + _diceRoll;
-        LogMessage(palyers.get(activePlayer).Name + "'s new position is " + palyers.get(activePlayer).Val);
         
-        _val = palyers.get(activePlayer).Val;
-        _category = (_val % 4 > 3) ? categoryList[3] : categoryList[(_val%4)];
-        
-        LogMessage("The current category is " + _category);       
-        askQuestion(_category);
+        try {
+            
+            palyers.get(activePlayer).Val = ( (palyers.get(activePlayer).Val + _diceRoll) > 11 ) ? ( palyers.get(activePlayer).Val + _diceRoll - 12 ) : palyers.get(activePlayer).Val + _diceRoll;
+            LogMessage(palyers.get(activePlayer).Name + "'s new position is " + palyers.get(activePlayer).Val);
+
+            _val = palyers.get(activePlayer).Val;
+            
+            // Adding "categoryList.length" to calculate the category based on the number of categories.
+            _category = categoryList[(_val % categoryList.length)];
+
+            LogMessage("The current category is " + _category);       
+            askQuestion(_category);
+            
+          }
+          catch(Exception e) {
+            throw e;
+          }
     }
     
 
@@ -208,9 +228,16 @@ public class QuizGame {
     */
     private void askQuestion(String _category) {
 
-      Question tmpQuestion = questionsList.stream().filter(question -> _category.equals(question.Category)).findFirst().get();
-      LogMessage(tmpQuestion.Text);     
-      questionsList.remove(tmpQuestion);
+      try {
+        Question tmpQuestion = questionsList.stream().filter(question -> _category.equals(question.Category)).findFirst().get();
+        LogMessage(tmpQuestion.Text);     
+        questionsList.remove(tmpQuestion);
+      }
+      catch(Exception e) {
+        throw e;
+      }
+
+      
     }
     
     /*  
@@ -218,10 +245,18 @@ public class QuizGame {
         Set a penalty to the player and move to the next one.
     */
     private boolean answeredIncorrectly(){
-        LogMessage("Incorrect answer");
-        LogMessage(palyers.get(activePlayer).Name + " has been sent to the penalty box");
-        palyers.get(activePlayer).HasPenalty = true;
-
+        
+        try {
+            
+            LogMessage("Incorrect answer");
+            LogMessage(palyers.get(activePlayer).Name + " has been sent to the penalty box");
+            palyers.get(activePlayer).HasPenalty = true;
+        
+          }
+          catch(Exception e) {
+            throw e;
+          }
+        
         return true;
     }
     
@@ -231,14 +266,12 @@ public class QuizGame {
         Increasing the score for this player and moving to the next one
         Return true if game needs to continue, false when score is 6 and game it is finished.
     */
-    private boolean answeredCorrectly() {
-        
+    private boolean answeredCorrectly() {       
         if (palyers.get(activePlayer).HasPenalty && !isExitingPenaltyBox ){
             return true;
         } else {          
             return manageAnswer(activePlayer);          
         }
-        
     }
     
     /*
@@ -246,11 +279,18 @@ public class QuizGame {
         Return true if the player score is 6 and the game can be finished
     */
     private boolean manageAnswer(int _activePlayer)
-    {
-        LogMessage("Correct answer!");
-        palyers.get(_activePlayer).Score++;
-        LogMessage(palyers.get(activePlayer).Name + " now has " + palyers.get(activePlayer).Score + " points.");
-        
+    {      
+        try {
+            
+            LogMessage("Correct answer!");
+            palyers.get(_activePlayer).Score++;
+            LogMessage(palyers.get(activePlayer).Name + " now has " + palyers.get(activePlayer).Score + " points.");
+            
+          }
+          catch(Exception e) {
+            throw e;
+          }
+
         return !(palyers.get(activePlayer).Score == 6);
     }
     
